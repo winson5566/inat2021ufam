@@ -4,11 +4,18 @@
 
 ### Requirements
 
-Prepare an environment with python=3.8, tensorflow=2.3.1
+Prepare an environment with python=3.12, tensorflow=2.19.0
 
 Dependencies can be installed using the following command:
 ```bash
 pip install -r requirements.txt
+```
+Check GPU
+```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
+python -c "from tensorflow.python.client import device_lib; \
+print(device_lib.list_local_devices())"
 ```
 
 ### Data
@@ -16,13 +23,37 @@ pip install -r requirements.txt
 Please refer to the [iNaturalist 2021 Competition Github page](https://github.com/visipedia/inat_comp/tree/master/2021) for additional dataset details and download links.
 
 Use the script `dataset_tools/create_inat2021_tf_records.py` to generate the TFRecords files.
+```bash
+python dataset_tools/create_inat2021_tf_records_new.py \
+  --annotations_file=inat2021/train.json \
+  --dataset_base_dir=inat2021 \
+  --output_dir=inat2021/tfrecords/inat_train.record
+```
+```bash
+python dataset_tools/create_inat2021_tf_records_new.py \
+  --annotations_file=inat2021/train_mini.json \
+  --dataset_base_dir=inat2021 \
+  --output_dir=inat2021/tfrecords/inat_train.record
+```
+```bash
+python dataset_tools/create_inat2021_tf_records_new.py \
+  --annotations_file=inat2021/val.json \
+  --dataset_base_dir=inat2021 \
+  --output_dir=inat2021/tfrecords/inat_val.record
+```
+```bash
+python dataset_tools/create_inat2021_tf_records_new.py \
+  --annotations_file=inat2021/public_test.json \
+  --dataset_base_dir=inat2021 \
+  --output_dir=inat2021/tfrecords/inat_test.record
+```
 
 ### Training
 
 To train a classifier use the script `main.py`. As long as our final submission has two training stages, you can use the script `multi_stage_train.py`:
 ```bash
-python multi_stage_train.py --training_files=PATH_TO_BE_CONFIGURED/inat_train.record-?????-of-02240 \
-    --num_training_instances=2686843 \
+python multi_stage_train.py --training_files=PATH_TO_BE_CONFIGURED/inat_train.record-?????-of-00417 \
+    --num_training_instances=500000 \
     --validation_files=PATH_TO_BE_CONFIGURED/inat_val.record-?????-of-00084 \
     --num_validation_instances=100000 \
     --num_classes=10000 \
@@ -47,11 +78,29 @@ python multi_stage_train.py --training_files=PATH_TO_BE_CONFIGURED/inat_train.re
 ```
 
 The parameters can also be passed using a config file:
+efficientnet_b3
 ```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python multi_stage_train.py --flagfile=configs/efficientnet_b3_final_submission_training.config \
-    --model_dir=PATH_TO_BE_CONFIGURED
+    --model_dir=model_efficientnet_b3
 ```
 
+efficientnet_b0
+```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
+python multi_stage_train.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_mltstg.config \
+    --model_dir=model/model_efficientnet_b0
+```
+
+mobile_v2
+```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
+python multi_stage_train.py --flagfile=configs/mobile_v2_224x224_inatmini_full_mltstg.config \
+    --model_dir=model/model_mobile_v2
+```
 For more parameter information, please refer to `multi_stage_train.py` or `main.py`. See `configs` folder for some training configs examples.
 
 #### Training Geo Prior Model

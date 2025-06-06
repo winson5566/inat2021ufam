@@ -130,3 +130,9 @@ dmypy.json
 
 # VS Code
 .vscode/
+
+# dataset
+.inat2021/
+
+#model checkpoint
+.model/
