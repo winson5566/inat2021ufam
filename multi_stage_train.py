@@ -289,7 +289,7 @@ def main(_):
       model = get_model(num_classes, FLAGS.input_size, unfreeze_layers=0)
     model.summary()
     if prev_checkpoint is not None:
-      checkpoint_path = os.path.join(prev_checkpoint, "ckp")
+      checkpoint_path = os.path.join(prev_checkpoint, "ckp.weights.h5")
       model.load_weights(checkpoint_path)
     train_model(model,
                 learning_rate=FLAGS.lr_stage1,
@@ -306,7 +306,7 @@ def main(_):
       model = get_model(num_classes, FLAGS.input_size, unfreeze_layers=-1)
     model.summary()
     if prev_checkpoint is not None:
-      checkpoint_path = os.path.join(prev_checkpoint, "ckp")
+      checkpoint_path = os.path.join(prev_checkpoint, "ckp.weights.h5")
       model.load_weights(checkpoint_path)
     train_model(model,
                 learning_rate=FLAGS.lr_stage2,
@@ -342,7 +342,7 @@ def main(_):
                         unfreeze_layers=FLAGS.unfreeze_layers)
     model.summary()
     if prev_checkpoint is not None:
-      checkpoint_path = os.path.join(prev_checkpoint, "ckp")
+      checkpoint_path = os.path.join(prev_checkpoint, "ckp.weights.h5")
       model.load_weights(checkpoint_path)
     train_model(model,
                 learning_rate=FLAGS.lr_stage3,
