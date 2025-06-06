@@ -290,7 +290,9 @@ def main(_):
     model.summary()
     if prev_checkpoint is not None:
       checkpoint_path = os.path.join(prev_checkpoint, "ckp.weights.h5")
+      print(f"🔄 Loading checkpoint from: {checkpoint_path}")
       model.load_weights(checkpoint_path)
+      print("✅ Weights successfully loaded.")
     train_model(model,
                 learning_rate=FLAGS.lr_stage1,
                 epochs=FLAGS.epochs_stage1,
