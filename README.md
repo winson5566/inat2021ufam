@@ -78,14 +78,6 @@ python multi_stage_train.py --training_files=PATH_TO_BE_CONFIGURED/inat_train.re
 ```
 
 The parameters can also be passed using a config file:
-efficientnet_b3
-```bash
-export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
-export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
-python multi_stage_train.py --flagfile=configs/efficientnet_b3_final_submission_training.config \
-    --model_dir=model_efficientnet_b3
-```
-
 efficientnet_b0
 ```bash
 export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
@@ -93,12 +85,11 @@ export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python multi_stage_train.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_mltstg.config \
     --model_dir=model/model_efficientnet_b0
 ```
-
 mobile_v2
 ```bash
 export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
 export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
-python multi_stage_train.py --flagfile=configs/mobile_v2_224x224_inatmini_full_mltstg.config \
+python multi_stage_train.py --flagfile=configs/moblie_v2_224x224_inatmini_full_mltstg.config \
     --model_dir=model/model_mobile_v2
 ```
 For more parameter information, please refer to `multi_stage_train.py` or `main.py`. See `configs` folder for some training configs examples.

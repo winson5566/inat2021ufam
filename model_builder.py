@@ -55,8 +55,8 @@ efficientnet_b4_spec = get_default_specs()._replace(
   input_size=380
 )
 
-mobilenetv2_spec = get_default_specs()._replace(
-  name='mobilenetv2',
+mobilenet_v2_spec: ModelSpecs = get_default_specs()._replace(
+  name='mobilenet-v2',
   func=tf.keras.applications.MobileNetV2,
   input_size=224
 )
@@ -66,7 +66,7 @@ MODELS_SPECS = {
   'efficientnet-b2': efficientnet_b2_spec,
   'efficientnet-b3': efficientnet_b3_spec,
   'efficientnet-b4': efficientnet_b4_spec,
-  'mobilenetv2': mobilenetv2_spec,
+  'mobilenet-v2': mobilenet_v2_spec,
 }
 
 def _get_mobilenet_params(model_name):
@@ -83,7 +83,7 @@ def _get_mobilenet_params(model_name):
 def _get_keras_base_model(specs, model_name, weights='imagenet'):
   base_model = None
 
-  if specs.name == 'mobilenetv2':
+  if specs.name == 'mobilenet-v2':
     alpha = _get_mobilenet_params(model_name)
     base_model = specs.func(
       input_shape=(specs.input_size, specs.input_size, 3),
