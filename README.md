@@ -27,25 +27,25 @@ Use the script `dataset_tools/create_inat2021_tf_records.py` to generate the TFR
 python dataset_tools/create_inat2021_tf_records_new.py \
   --annotations_file=inat2021/train.json \
   --dataset_base_dir=inat2021 \
-  --output_dir=inat2021/tfrecords/inat_train.record
+  --output_dir=inat2021/tfrecords/train/inat_train.record
 ```
 ```bash
 python dataset_tools/create_inat2021_tf_records_new.py \
   --annotations_file=inat2021/train_mini.json \
   --dataset_base_dir=inat2021 \
-  --output_dir=inat2021/tfrecords/inat_train.record
+  --output_dir=inat2021/tfrecords/train_mini/inat_train.record
 ```
 ```bash
 python dataset_tools/create_inat2021_tf_records_new.py \
   --annotations_file=inat2021/val.json \
   --dataset_base_dir=inat2021 \
-  --output_dir=inat2021/tfrecords/inat_val.record
+  --output_dir=inat2021/tfrecords/val/inat_val.record
 ```
 ```bash
 python dataset_tools/create_inat2021_tf_records_new.py \
   --annotations_file=inat2021/public_test.json \
   --dataset_base_dir=inat2021 \
-  --output_dir=inat2021/tfrecords/inat_test.record
+  --output_dir=inat2021/tfrecords/test/inat_test.record
 ```
 
 ### Training
@@ -91,6 +91,11 @@ export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
 export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python multi_stage_train.py --flagfile=configs/moblie_v2_224x224_inatmini_full_mltstg.config \
     --model_dir=model/model_mobile_v2
+```
+mobile_v3
+```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python multi_stage_train.py --flagfile=configs/moblie_v3_224x224_inatmini_full_mltstg.config \
 --model_dir=model/model_mobile_v3
 

@@ -32,7 +32,7 @@ import model_builder
 import train_image_classifier
 import utils
 
-# tf.config.set_visible_devices([], 'GPU')
+tf.config.set_visible_devices([], 'GPU')
 
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
@@ -186,7 +186,13 @@ def build_tfrecord_input_data(file_pattern,
     seed=FLAGS.random_seed,
   )
 
-  return input_data.make_source_dataset()
+  dataset, num_instances, num_classes = input_data.make_source_dataset()
+
+  if not is_training:
+    dataset = dataset.repeat()
+
+  return dataset, num_instances, num_classes
+
 
 def get_model(num_classes, input_size, unfreeze_layers):
   model = model_builder.create(
