@@ -32,6 +32,8 @@ import model_builder
 import train_image_classifier
 import utils
 
+# tf.config.set_visible_devices([], 'GPU')
+
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
 
 FLAGS = flags.FLAGS

@@ -91,6 +91,9 @@ export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
 export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python multi_stage_train.py --flagfile=configs/moblie_v2_224x224_inatmini_full_mltstg.config \
     --model_dir=model/model_mobile_v2
+python multi_stage_train.py --flagfile=configs/moblie_v3_224x224_inatmini_full_mltstg.config \
+--model_dir=model/model_mobile_v3
+
 ```
 For more parameter information, please refer to `multi_stage_train.py` or `main.py`. See `configs` folder for some training configs examples.
 
