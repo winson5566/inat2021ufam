@@ -203,7 +203,8 @@ class TFRecordWBBoxInputProcessor:
                       is_training=self.preprocess_for_train,
                       resize_with_pad=self.resize_with_pad,
                       randaug_num_layers=self.randaug_num_layers,
-                      randaug_magnitude=self.randaug_magnitude)
+                      randaug_magnitude=self.randaug_magnitude,
+                      seed=self.seed)
 
       coordinates = tf.stack([latitude, longitude], 0)
       if self.is_training and FLAGS.use_coordinates_augment:

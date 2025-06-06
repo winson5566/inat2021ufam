@@ -20,13 +20,13 @@ import tensorflow as tf
 import lr_schedulers
 
 HParams = collections.namedtuple("HParams", [
-    'lr', 'use_cosine_decay', 'warmup_steps', 'epochs', 'batch_size',
+    'learning_rate', 'use_cosine_decay', 'warmup_steps', 'epochs', 'batch_size',
     'momentum', 'label_smoothing', 'use_logits', 'model_dir'
   ])
 
 def get_default_hparams():
   return HParams(
-    lr=0.01,
+    learning_rate=0.01,
     use_cosine_decay=False,
     warmup_steps=500,
     epochs=10,
@@ -38,7 +38,7 @@ def get_default_hparams():
   )
 
 def generate_optimizer(hparams):
-  optimizer = tf.keras.optimizers.SGD(lr=hparams.lr, momentum=hparams.momentum)
+  optimizer = tf.keras.optimizers.SGD(learning_rate=hparams.learning_rate, momentum=hparams.momentum)
 
   return optimizer
 
@@ -54,10 +54,10 @@ def generate_lr_scheduler(hparams, steps_per_epoch):
   if hparams.use_cosine_decay:
     alpha = 0.0
   else:
-    alpha = hparams.lr
+    alpha = hparams.learning_rate
 
   scheduler = lr_schedulers.CosineDecayWithLinearWarmUpScheduler(
-    initial_learning_rate=hparams.lr,
+    initial_learning_rate=hparams.learning_rate,
     decay_steps=hparams.epochs*steps_per_epoch,
     warmup_steps=hparams.warmup_steps,
     alpha=alpha
@@ -80,7 +80,7 @@ def train_model(model,
   summary_dir = os.path.join(hparams.model_dir, "summaries")
   summary_callback = tf.keras.callbacks.TensorBoard(summary_dir)
 
-  checkpoint_filepath = os.path.join(hparams.model_dir, "ckp")
+  checkpoint_filepath = os.path.join(hparams.model_dir, "ckp.weights.h5")
   checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
       filepath=checkpoint_filepath,
       save_weights_only=True,

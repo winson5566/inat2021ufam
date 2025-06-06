@@ -51,8 +51,8 @@ class CosineDecayWithLinearWarmUpScheduler(tf.keras.callbacks.Callback):
     self.learning_rates = []
 
   def on_train_batch_begin(self, batch, logs=None):
-    if not hasattr(self.model.optimizer, "lr"):
-      raise ValueError('Optimizer must have a "lr" attribute.')
+    if not hasattr(self.model.optimizer, "learning_rate"):
+      raise ValueError('Optimizer must have a "learning_rate" attribute.')
 
     self.steps = self.steps + 1
 
@@ -70,6 +70,6 @@ class CosineDecayWithLinearWarmUpScheduler(tf.keras.callbacks.Callback):
               self.decay_steps,
               self.alpha)
 
-    tf.keras.backend.set_value(self.model.optimizer.lr, lr)
-
+    # tf.keras.backend.set_value(self.model.optimizer.learning_rate, lr)
+    self.model.optimizer.learning_rate.assign(lr)
     self.learning_rates.append(lr)

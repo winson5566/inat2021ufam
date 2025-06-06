@@ -40,8 +40,14 @@ def random_crop(image,
                 area_range=[0.08, 1],
                 min_object_covered=0.5,
                 max_attempts=100,
-                seed=0):
-
+                seed=None):
+  # Ensure aspect_ratio_range and area_range are lists (not float)
+  if not isinstance(aspect_ratio_range, list):
+      aspect_ratio_range = [0.75, 1.33]
+  if not isinstance(area_range, list):
+      area_range = [0.08, 1.0]
+  if seed is None or seed == 0:
+      seed = 42  # Use fixed non-zero seed to satisfy determinism requirement
   bbox = tf.constant([0.0, 0.0, 1.0, 1.0], dtype=tf.float32, shape=[1, 1, 4])
   bbox_begin, bbox_size, _ = tf.image.sample_distorted_bounding_box(
       tf.shape(image),

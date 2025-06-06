@@ -185,7 +185,7 @@ def train_model(model, train_data_and_size, val_data_and_size, strategy):
 
   hparams = train_image_classifier.get_default_hparams()
   hparams = hparams._replace(
-    lr=lr,
+    learning_rate=lr,
     momentum=FLAGS.momentum,
     epochs=FLAGS.epochs,
     warmup_steps=warmup_steps,

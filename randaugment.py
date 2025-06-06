@@ -22,7 +22,6 @@ RandAugment Reference: https://arxiv.org/abs/1909.13719
 import inspect
 import math
 import tensorflow as tf
-from tensorflow_addons import image as contrib_image
 from absl import flags
 
 
@@ -183,64 +182,74 @@ def posterize(image, bits):
   shift = 8 - bits
   return tf.bitwise.left_shift(tf.bitwise.right_shift(image, shift), shift)
 
+def rotate(image, degrees, replace=[128]):
+    radians = tf.cast(degrees, tf.float32) * tf.constant(math.pi / 180.0, tf.float32)
+    cos_val = tf.math.cos(radians)
+    sin_val = tf.math.sin(radians)
 
-def rotate(image, degrees, replace):
-  '''Rotates the image by degrees either clockwise or counterclockwise.
+    transform = tf.stack([
+        cos_val, -sin_val, 0.0,
+        sin_val,  cos_val, 0.0,
+        0.0, 0.0
+    ])
+    transform = tf.expand_dims(transform, 0)
 
-  Args:
-    image: An image Tensor of type uint8.
-    degrees: Float, a scalar angle in degrees to rotate all images by. If
-      degrees is positive the image will be rotated clockwise otherwise it will
-      be rotated counterclockwise.
-    replace: A one or three value 1D tensor to fill empty pixels caused by
-      the rotate operation.
+    image = tf.expand_dims(image, 0)
+    result = tf.raw_ops.ImageProjectiveTransformV3(
+        images=image,
+        transforms=transform,
+        output_shape=tf.shape(image)[1:3],
+        interpolation='BILINEAR',
+        fill_value=replace[0]
+    )
+    return tf.squeeze(result, 0)
 
-  Returns:
-    The rotated version of image.
-  '''
-  # Convert from degrees to radians.
-  degrees_to_radians = math.pi / 180.0
-  radians = degrees * degrees_to_radians
-
-  # In practice, we should randomize the rotation degrees by flipping
-  # it negatively half the time, but that's done on 'degrees' outside
-  # of the function.
-  image = contrib_image.rotate(wrap(image), radians)
-  return unwrap(image, replace)
 
 
 def translate_x(image, pixels, replace):
-  '''Equivalent of PIL Translate in X dimension.'''
-  image = contrib_image.translate(wrap(image), [-pixels, 0])
-  return unwrap(image, replace)
+    transform = tf.convert_to_tensor([[1.0, 0.0, -pixels,
+                                       0.0, 1.0, 0.0,
+                                       0.0, 0.0]], dtype=tf.float32)
+    return tf.raw_ops.ImageProjectiveTransformV3(
+        images=tf.expand_dims(tf.cast(image, tf.float32), 0),
+        transforms=transform,
+        output_shape=tf.shape(image)[:2],
+        interpolation="NEAREST",
+        fill_value=replace[0])[0]
 
 
 def translate_y(image, pixels, replace):
-  '''Equivalent of PIL Translate in Y dimension.'''
-  image = contrib_image.translate(wrap(image), [0, -pixels])
-  return unwrap(image, replace)
-
+    transform = tf.convert_to_tensor([[1.0, 0.0, 0.0,
+                                       0.0, 1.0, -pixels,
+                                       0.0, 0.0]], dtype=tf.float32)
+    return tf.raw_ops.ImageProjectiveTransformV3(
+        images=tf.expand_dims(tf.cast(image, tf.float32), 0),
+        transforms=transform,
+        output_shape=tf.shape(image)[:2],
+        interpolation="NEAREST",
+        fill_value=replace[0])[0]
 
 def shear_x(image, level, replace):
-  '''Equivalent of PIL Shearing in X dimension.'''
-  # Shear parallel to x axis is a projective transform
-  # with a matrix form of:
-  # [1  level
-  #  0  1].
-  image = contrib_image.transform(
-      wrap(image), [1., level, 0., 0., 1., 0., 0., 0.])
-  return unwrap(image, replace)
-
+    transform = tf.convert_to_tensor([[1.0, level, 0.0,
+                                       0.0, 1.0, 0.0,
+                                       0.0, 0.0]], dtype=tf.float32)
+    return tf.raw_ops.ImageProjectiveTransformV3(
+        images=tf.expand_dims(tf.cast(image, tf.float32), 0),
+        transforms=transform,
+        output_shape=tf.shape(image)[:2],
+        interpolation="NEAREST",
+        fill_value=replace[0])[0]
 
 def shear_y(image, level, replace):
-  '''Equivalent of PIL Shearing in Y dimension.'''
-  # Shear parallel to y axis is a projective transform
-  # with a matrix form of:
-  # [1  0
-  #  level  1].
-  image = contrib_image.transform(
-      wrap(image), [1., 0., 0., level, 1., 0., 0., 0.])
-  return unwrap(image, replace)
+    transform = tf.convert_to_tensor([[1.0, 0.0, 0.0,
+                                       level, 1.0, 0.0,
+                                       0.0, 0.0]], dtype=tf.float32)
+    return tf.raw_ops.ImageProjectiveTransformV3(
+        images=tf.expand_dims(tf.cast(image, tf.float32), 0),
+        transforms=transform,
+        output_shape=tf.shape(image)[:2],
+        interpolation="NEAREST",
+        fill_value=replace[0])[0]
 
 
 def autocontrast(image):
@@ -494,20 +503,19 @@ def _parse_policy_info(name, prob, level, replace_value, augmentation_hparams):
   func = NAME_TO_FUNC[name]
   args = level_to_arg(augmentation_hparams)[name](level)
 
-  # Check to see if prob is passed into function. This is used for operations
-  # where we alter bboxes independently.
-  # pytype:disable=wrong-arg-types
-  if 'prob' in inspect.getargspec(func)[0]:
-    args = tuple([prob] + list(args))
-  # pytype:enable=wrong-arg-types
+  sig = inspect.signature(func)
 
-  # Add in replace arg if it is required for the function that is being called.
-  if 'replace' in inspect.getargspec(func)[0]:
-    # Make sure replace is the final argument
-    assert 'replace' == inspect.getargspec(func)[0][-1]
+  # Add prob if needed
+  if 'prob' in sig.parameters:
+    args = tuple([prob] + list(args))
+
+  # Add replace if needed
+  if 'replace' in sig.parameters:
+    assert 'replace' == list(sig.parameters)[-1]
     args = tuple(list(args) + [replace_value])
 
   return (func, prob, args)
+
 
 
 def distort_image_with_randaugment(image, num_layers, magnitude,
@@ -550,9 +558,6 @@ def distort_image_with_randaugment(image, num_layers, magnitude,
                                            replace_value, augmentation_hparams)
         image = tf.cond(
             tf.equal(i, op_to_select),
-            # pylint:disable=g-long-lambda
-            lambda selected_func=func, selected_args=args: selected_func(
-                image, *selected_args),
-            # pylint:enable=g-long-lambda
+            lambda selected_func=func, selected_args=args: tf.cast(selected_func(image, *selected_args), tf.uint8),
             lambda: image)
   return image

@@ -199,7 +199,7 @@ def get_model(num_classes, input_size, unfreeze_layers):
   return model
 
 def train_model(model,
-                lr,
+                learning_rate,
                 epochs,
                 model_dir,
                 train_data_and_size,
@@ -207,14 +207,14 @@ def train_model(model,
                 strategy):
 
   if FLAGS.use_scaled_lr:
-    lr = lr * FLAGS.batch_size / 256
+    learning_rate = learning_rate * FLAGS.batch_size / 256
 
   _, train_size = train_data_and_size
   warmup_steps = int(FLAGS.warmup_epochs * (train_size // FLAGS.batch_size))
 
   hparams = train_image_classifier.get_default_hparams()
   hparams = hparams._replace(
-    lr=lr,
+    learning_rate=learning_rate,
     momentum=FLAGS.momentum,
     epochs=epochs,
     warmup_steps=warmup_steps,
@@ -284,7 +284,7 @@ def main(_):
       checkpoint_path = os.path.join(prev_checkpoint, "ckp")
       model.load_weights(checkpoint_path)
     train_model(model,
-                lr=FLAGS.lr_stage1,
+                learning_rate=FLAGS.lr_stage1,
                 epochs=FLAGS.epochs_stage1,
                 model_dir=os.path.join(FLAGS.model_dir, 'stage1'),
                 train_data_and_size=(dataset, num_instances),
@@ -301,7 +301,7 @@ def main(_):
       checkpoint_path = os.path.join(prev_checkpoint, "ckp")
       model.load_weights(checkpoint_path)
     train_model(model,
-                lr=FLAGS.lr_stage2,
+                learning_rate=FLAGS.lr_stage2,
                 epochs=FLAGS.epochs_stage2,
                 model_dir=os.path.join(FLAGS.model_dir, 'stage2'),
                 train_data_and_size=(dataset, num_instances),
@@ -337,7 +337,7 @@ def main(_):
       checkpoint_path = os.path.join(prev_checkpoint, "ckp")
       model.load_weights(checkpoint_path)
     train_model(model,
-                lr=FLAGS.lr_stage3,
+                learning_rate=FLAGS.lr_stage3,
                 epochs=FLAGS.epochs_stage3,
                 model_dir=FLAGS.model_dir,
                 train_data_and_size=(dataset, num_instances),
