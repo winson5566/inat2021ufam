@@ -135,4 +135,4 @@ dmypy.json
 inat2021/
 
 #model checkpoint
-model/
+#model/
