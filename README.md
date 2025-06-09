@@ -133,9 +133,12 @@ python predict_main.py --test_files=PATH_TO_BE_CONFIGURED/inat_public_test.recor
 | Efficientnet-B3 + Geo Prior       | 0.10752       |
 | Efficientnet-B3 + Geo Prior + TTA | 0.09894       |
 
-### Contact
 
-If you have any questions, feel free to contact Fagner Cunha (e-mail: fagner.cunha@icomp.ufam.edu.br) or Github issues. 
+
+### Export Model
+```bash
+python export_tflite.py --flagfile=configs/moblie_v3_224x224_inatmini_full_export.config
+```
 
 ### License
 
