@@ -133,7 +133,11 @@ python predict_main.py --test_files=PATH_TO_BE_CONFIGURED/inat_public_test.recor
 | Efficientnet-B3 + Geo Prior       | 0.10752       |
 | Efficientnet-B3 + Geo Prior + TTA | 0.09894       |
 
-
+### tensorboard
+```bash
+tensorboard --logdir=model/model_mobile_v3/stage2
+Then open your browser and go to: http://localhost:6006
+```
 
 ### Export Model
 ```bash
