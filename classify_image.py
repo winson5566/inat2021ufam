@@ -1,33 +1,21 @@
 import numpy as np
 from PIL import Image
 import json
+from absl import app, flags
 from tensorflow.lite.python.interpreter import Interpreter
 
-# Paths
-TFLITE_MODEL_PATH = "model/model_mobile_v3/export/MobileNet_v3_small_inat2021.tflite"
-IMAGE_PATH = "test/sasanqua_camellia.png"
-CATEGORIES_JSON = "inat2021/categories.json"
-TOP_K = 5
+# Define flags
+FLAGS = flags.FLAGS
+flags.DEFINE_string('tflite_model_path', None, help='Path to TFLite model file.')
+flags.DEFINE_string('image_path', None, help='Path to input image.')
+flags.DEFINE_string('categories_json', None, help='Path to categories.json.')
+flags.DEFINE_integer('top_k', 5, help='Top K predictions to display.')
 
-# Load iNat2021 categories (id → full taxonomy info)
-with open(CATEGORIES_JSON, "r") as f:
-    categories = json.load(f)
+flags.mark_flag_as_required('tflite_model_path')
+flags.mark_flag_as_required('image_path')
+flags.mark_flag_as_required('categories_json')
 
-id_to_info = {item["id"]: item for item in categories}
-
-# Load model
-interpreter = Interpreter(model_path=TFLITE_MODEL_PATH)
-interpreter.allocate_tensors()
-
-# Get input/output details
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
-
-input_shape = input_details[0]['shape']
-input_size = input_shape[1]  # assumes square input
-
-
-# Preprocess image
+# Preprocessing
 def preprocess_image(image_path, size):
     img = Image.open(image_path).convert('RGB')
     img = img.resize((size, size))
@@ -35,28 +23,42 @@ def preprocess_image(image_path, size):
     img = np.expand_dims(img, axis=0)
     return img
 
+def main(_):
+    # Load categories
+    with open(FLAGS.categories_json, "r") as f:
+        categories = json.load(f)
+    id_to_info = {item["id"]: item for item in categories}
 
-input_data = preprocess_image(IMAGE_PATH, input_size)
+    # Load TFLite model
+    interpreter = Interpreter(model_path=FLAGS.tflite_model_path)
+    interpreter.allocate_tensors()
 
-# Run inference
-interpreter.set_tensor(input_details[0]['index'], input_data)
-interpreter.invoke()
-output = interpreter.get_tensor(output_details[0]['index'])[0]  # shape: (num_classes,)
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    input_size = input_details[0]['shape'][1]
 
-# Get top-k predictions
-top_k_indices = np.argsort(output)[-TOP_K:][::-1]  # descending order
+    # Preprocess image
+    input_data = preprocess_image(FLAGS.image_path, input_size)
+    interpreter.set_tensor(input_details[0]['index'], input_data)
+    interpreter.invoke()
+    output = interpreter.get_tensor(output_details[0]['index'])[0]
 
-print(f"✅ Top-{TOP_K} predictions for {IMAGE_PATH}:\n")
-for rank, class_id in enumerate(top_k_indices, start=1):
-    confidence = float(output[class_id])
-    if class_id in id_to_info:
-        info = id_to_info[class_id]
-        name = info["name"]
-        tax = f"{info['kingdom']} > {info['phylum']} > {info['class']} > {info['order']} > {info['family']} > {info['genus']}"
-    else:
-        name = "(Unknown)"
-        tax = "(No taxonomy info available)"
+    # Top-K predictions
+    top_k_indices = np.argsort(output)[-FLAGS.top_k:][::-1]
+    print(f"✅ Top-{FLAGS.top_k} predictions for {FLAGS.image_path}:\n")
 
-    print(f"{rank}. {name} (ID: {class_id})")
-    print(f"   Confidence: {confidence:.4f}")
-    print(f"   Taxonomy:   {tax}\n")
+    for rank, class_id in enumerate(top_k_indices, start=1):
+        confidence = float(output[class_id])
+        if class_id in id_to_info:
+            info = id_to_info[class_id]
+            name = info["name"]
+            tax = f"{info['kingdom']} > {info['phylum']} > {info['class']} > {info['order']} > {info['family']} > {info['genus']}"
+        else:
+            name = "(Unknown)"
+            tax = "(No taxonomy info available)"
+        print(f"{rank}. {name} (ID: {class_id})")
+        print(f"   Confidence: {confidence:.4f}")
+        print(f"   Taxonomy:   {tax}\n")
+
+if __name__ == '__main__':
+    app.run(main)

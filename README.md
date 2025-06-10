@@ -61,7 +61,7 @@ python multi_stage_train.py --training_files=PATH_TO_BE_CONFIGURED/inat_train.re
     --input_size=300 \
     --input_size_stage3=432 \
     --input_scale_mode=uint8 \
-    --batch_size=32 \
+    --batch_size=64 \
     --lr_stage1=0.1 \
     --lr_stage2=0.1 \
     --lr_stage3=0.008 \
@@ -112,7 +112,7 @@ To create a submission for the competition use script `predict_main.py`:
 ```bash
 python predict_main.py --test_files=PATH_TO_BE_CONFIGURED/inat_public_test.record-?????-of-00417 \
     --num_classes=10000 \
-    --model_name=efficientnet-b3 \
+    --model_name=efficientnet-b0 \
     --input_size=432 \
     --input_scale_mode=uint8 \
     --batch_size=8 \
@@ -135,13 +135,18 @@ python predict_main.py --test_files=PATH_TO_BE_CONFIGURED/inat_public_test.recor
 
 ### tensorboard
 ```bash
-tensorboard --logdir=model/model_mobile_v3/stage2
+tensorboard --logdir=model/model_efficientnet_b0
 Then open your browser and go to: http://localhost:6006
-```
 
+```
 ### Export Model
 ```bash
 python export_tflite.py --flagfile=configs/moblie_v3_224x224_inatmini_full_export.config
+```
+
+### Run test
+```bash
+python classify_image.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_test.config
 ```
 
 ### License
