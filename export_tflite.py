@@ -40,7 +40,6 @@ def build_model(model_name='mobilenetv3', input_size=224, num_classes=1000):
     inputs = tf.keras.Input(shape=input_shape)
     x = base_model(inputs, training=False)
     x = tf.keras.layers.GlobalAveragePooling2D()(x)
-    x = tf.keras.layers.Dropout(0.2)(x)
     outputs = tf.keras.layers.Dense(num_classes, activation='softmax')(x)
 
     model = tf.keras.Model(inputs, outputs)
