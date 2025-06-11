@@ -113,12 +113,12 @@ To create a submission for the competition use script `predict_main.py`:
 python predict_main.py --test_files=PATH_TO_BE_CONFIGURED/inat_public_test.record-?????-of-00417 \
     --num_classes=10000 \
     --model_name=efficientnet-b0 \
-    --input_size=432 \
+    --input_size=224 \
     --input_scale_mode=uint8 \
-    --batch_size=8 \
-    --ckpt_dir=PATH_TO_BE_CONFIGURED/ \
-    --geo_prior_ckpt_dir=PATH_TO_BE_CONFIGURED/ \
-    --submission_file_path=PATH_TO_BE_CONFIGURED/final_submission.csv \
+    --batch_size=32 \
+    --ckpt_dir=Pmodel/model_efficientnet_b0/ \
+#    --geo_prior_ckpt_dir=PATH_TO_BE_CONFIGURED/ \
+    --submission_file_path=test/final_submission.csv \
     --use_tta
 ```
 
