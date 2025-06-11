@@ -141,7 +141,7 @@ Then open your browser and go to: http://localhost:6006
 ```
 ### Export Model
 ```bash
-python export_tflite.py --flagfile=configs/moblie_v3_224x224_inatmini_full_export.config
+python export_tflite.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_export.config
 ```
 
 ### Run test
