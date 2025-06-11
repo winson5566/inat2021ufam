@@ -1,6 +1,6 @@
-# iNaturalist 2021 - UFAM Team
+# iNaturalist 2021
 
-6th Place Solution to [iNat Challenge 2021](https://www.kaggle.com/c/inaturalist-2021/): 10,000 Species Recognition Challenge with iNaturalist Data
+Solution to [iNat Challenge 2021](https://www.kaggle.com/c/inaturalist-2021/): 10,000 Species Recognition Challenge with iNaturalist Data
 
 ### Requirements
 
