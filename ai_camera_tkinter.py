@@ -11,7 +11,7 @@ except ImportError:
     from tensorflow.lite.python.interpreter import Interpreter
 
 # ==== CONFIG ====
-MODEL_PATH = "model/model_mobile_v3/export/MobileNet_v3_small_inat2021.tflite"
+MODEL_PATH = "model/model_mobile_v3_20250616/export/MobileNet_v3_small_inat2021.tflite"
 CATEGORIES_JSON = "inat2021/categories.json"
 INPUT_SIZE = 224
 CAMERA_WIDTH = 640

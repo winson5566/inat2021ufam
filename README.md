@@ -136,6 +136,7 @@ python predict_main.py --test_files=PATH_TO_BE_CONFIGURED/inat_public_test.recor
 ### tensorboard
 ```bash
 tensorboard --logdir=model/model_efficientnet_b0
+tensorboard --logdir=model/model_mobile_v3_20250616
 Then open your browser and go to: http://localhost:6006
 
 ```
