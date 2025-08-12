@@ -99,15 +99,26 @@ flags.mark_flag_as_required('test_files')
 flags.mark_flag_as_required('results_file')
 
 def _load_model():
-  model = model_builder.create(model_name=FLAGS.model_name,
-                            num_classes=FLAGS.num_classes,
-                            input_size=FLAGS.input_size,
-                            use_coordinates_inputs=FLAGS.use_coordinates_inputs,
-                            unfreeze_layers=0)
+  model = model_builder.create(
+      model_name=FLAGS.model_name,
+      num_classes=FLAGS.num_classes,
+      input_size=FLAGS.input_size,
+      use_coordinates_inputs=FLAGS.use_coordinates_inputs,
+      unfreeze_layers=0)
 
-  checkpoint_path = os.path.join(FLAGS.ckpt_dir, "ckp")
-  model.load_weights(checkpoint_path)
-
+  # try a few common filenames for Keras3
+  for fname in ["ckp.weights.h5", "ckp.h5", "ckp"]:
+      p = os.path.join(FLAGS.ckpt_dir, fname)
+      if os.path.exists(p):
+          print(f"🔄 Loading weights from: {p}")
+          model.load_weights(p)
+          print("✅ Weights loaded.")
+          break
+  else:
+      raise FileNotFoundError(
+          f"No checkpoint file found under {FLAGS.ckpt_dir} "
+          "tried: ckp.weights.h5, ckp.h5, ckp"
+      )
   return model
 
 def _load_geo_prior_model():

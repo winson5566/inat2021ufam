@@ -140,9 +140,40 @@ tensorboard --logdir=model/model_mobile_v3_20250616
 Then open your browser and go to: http://localhost:6006
 
 ```
+
+
+### Evaluate
+#### Evaluate ckp.weights.h5
+```bash
+python eval_main.py \
+  --model_name=efficientnet-b0 \
+  --input_size=224 \
+  --num_classes=10000 \
+  --batch_size=32 \
+  --ckpt_dir=model/model_efficientnet_b0 \
+  --test_files="inat2021/tfrecords/test/inat_test.record-?????-of-00417" \
+  --results_file=eval_results/result
+```
+#### Evaluate tflite
+```bash
+python eval_tflite.py \
+  --tflite_path=model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_drq.tflite \
+  --test_files="inat2021/tfrecords/test/inat_test.record-?????-of-00417" \
+  --num_classes=10000 \
+  --input_size=224 \
+  --batch_size=64 \
+  --results_file=eval_results_tflite/result
+```
 ### Export Model
 ```bash
 python export_tflite.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_export.config
+```
+
+### Inspect Model
+```bash
+python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_drq.tflite
+python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp16.tflite
+python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp32.tflite
 ```
 
 ### Run test
