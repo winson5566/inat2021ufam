@@ -142,8 +142,8 @@ Then open your browser and go to: http://localhost:6006
 ```
 
 
-### Evaluate
-#### Evaluate ckp.weights.h5
+## ckp.weights.h5
+### Evaluate ckp.weights.h5
 ```bash
 python eval_main.py \
   --model_name=efficientnet-b0 \
@@ -154,7 +154,20 @@ python eval_main.py \
   --test_files="inat2021/tfrecords/test/inat_test.record-?????-of-00417" \
   --results_file=eval_results/result
 ```
-#### Evaluate tflite
+## tflite
+### Export tflite Model
+```bash
+python export_tflite.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_export.config
+```
+
+### Inspect tflite Model
+```bash
+python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_drq.tflite
+python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp16.tflite
+python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp32.tflite
+```
+
+### Evaluate tflite Model
 ```bash
 python eval_tflite.py \
   --tflite_path=model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_drq.tflite \
@@ -164,23 +177,12 @@ python eval_tflite.py \
   --batch_size=64 \
   --results_file=eval_results_tflite/result
 ```
-### Export Model
-```bash
-python export_tflite.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_export.config
-```
 
-### Inspect Model
-```bash
-python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_drq.tflite
-python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp16.tflite
-python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp32.tflite
-```
-
-### Run test
+## Run test
 ```bash
 python classify_image.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_test.config
 ```
 
-### License
+## License
 
 [Apache License 2.0](LICENSE)
