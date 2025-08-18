@@ -41,12 +41,6 @@ python dataset_tools/create_inat2021_tf_records_new.py \
   --dataset_base_dir=inat2021 \
   --output_dir=inat2021/tfrecords/val/inat_val.record
 ```
-```bash
-python dataset_tools/create_inat2021_tf_records_new.py \
-  --annotations_file=inat2021/public_test.json \
-  --dataset_base_dir=inat2021 \
-  --output_dir=inat2021/tfrecords/test/inat_test.record
-```
 
 ### Training
 
@@ -103,57 +97,28 @@ python multi_stage_train.py --flagfile=configs/moblie_v3_224x224_inatmini_full_m
 For more parameter information, please refer to `multi_stage_train.py` or `main.py`. See `configs` folder for some training configs examples.
 
 #### Training Geo Prior Model
-
 To train geo prior model used on our final submission please see our [TF implementation](https://github.com/alcunha/geo_prior_tf/).
-
-### Prediction
-
-To create a submission for the competition use script `predict_main.py`:
-```bash
-python predict_main.py --test_files=PATH_TO_BE_CONFIGURED/inat_public_test.record-?????-of-00417 \
-    --num_classes=10000 \
-    --model_name=efficientnet-b0 \
-    --input_size=224 \
-    --input_scale_mode=uint8 \
-    --batch_size=32 \
-    --ckpt_dir=Pmodel/model_efficientnet_b0/ \
-#    --geo_prior_ckpt_dir=PATH_TO_BE_CONFIGURED/ \
-    --submission_file_path=test/final_submission.csv \
-    --use_tta
-```
-
-### Results
-
-[Efficientnet-B3](https://drive.google.com/file/d/1SDx5P-ovb1NQPyPu4ubgsOhttUEdzs4A/view?usp=sharing) was trained on iNat2021 train set, inference using input of 432x432.
-[Geo Prior](https://drive.google.com/file/d/1xzYaouGOZQrbibHbTMUs4d8PZZYDnZXT/view?usp=sharing) model was trained using coordinates and date info from iNat2021 train set.
-
-| Model name                        | Private Score |
-|-----------------------------------|---------------|
-| Efficientnet-B3                   | 0.16756       |
-| Efficientnet-B3 + Geo Prior       | 0.10752       |
-| Efficientnet-B3 + Geo Prior + TTA | 0.09894       |
 
 ### tensorboard
 ```bash
 tensorboard --logdir=model/model_efficientnet_b0
 tensorboard --logdir=model/model_mobile_v3_20250616
-Then open your browser and go to: http://localhost:6006
-
 ```
-
 
 ## ckp.weights.h5
 ### Evaluate ckp.weights.h5
 ```bash
 python eval_main.py \
   --model_name=efficientnet-b0 \
-  --input_size=224 \
+  --input_size=300 \
   --num_classes=10000 \
   --batch_size=32 \
   --ckpt_dir=model/model_efficientnet_b0 \
-  --test_files="inat2021/tfrecords/test/inat_test.record-?????-of-00417" \
-  --results_file=eval_results/result
-```
+  --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
+  --results_file=eval_results/result  \
+  --top_k=5
+``
+
 ## tflite
 ### Export tflite Model
 ```bash
@@ -171,13 +136,12 @@ python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b
 ```bash
 python eval_tflite.py \
   --tflite_path=model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_drq.tflite \
-  --test_files="inat2021/tfrecords/test/inat_test.record-?????-of-00417" \
+  --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
   --num_classes=10000 \
-  --input_size=224 \
-  --batch_size=64 \
-  --results_file=eval_results_tflite/result
+  --input_size=300 \
+  --batch_size=64  \
+  --top_k=5
 ```
-
 ## Run test
 ```bash
 python classify_image.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_test.config
