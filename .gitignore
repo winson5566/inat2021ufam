@@ -137,5 +137,5 @@ inat2021/tfrecords
 #model checkpoint
 #model/
 .idea/
-test/
-inat2021/categories/
+/test/
+/inat2021/categories/

@@ -116,7 +116,8 @@ python eval_main.py \
   --ckpt_dir=model/model_efficientnet_b0 \
   --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
   --results_file=eval_results/result  \
-  --top_k=5
+  --geo_prior_ckpt_dir model/geo_prior_ckp  \
+  --top_k=1
 ``
 
 ## tflite
@@ -131,7 +132,19 @@ python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b
 python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp16.tflite
 python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp32.tflite
 ```
-
+### Evaluate h5
+```bash
+python eval_h5.py \
+  --model_path=model/model_efficientnet_b0 \
+  --model_builder_module=model_builder \
+  --model_name=efficientnet-b0 \
+  --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
+  --num_classes=10000 \
+  --input_size=300 \
+  --batch_size=64 \
+  --geo_prior_ckpt_dir=model/geo_prior_ckp \
+  --top_k=1
+```
 ### Evaluate tflite Model
 ```bash
 python eval_tflite.py \
@@ -140,7 +153,9 @@ python eval_tflite.py \
   --num_classes=10000 \
   --input_size=300 \
   --batch_size=64  \
-  --top_k=5
+  --geo_prior_ckpt_dir=model/geo_prior_ckp  \
+  --top_k=1
+
 ```
 ## Run test
 ```bash
