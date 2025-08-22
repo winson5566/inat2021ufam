@@ -139,3 +139,11 @@ inat2021/tfrecords
 .idea/
 /test/
 /inat2021/categories/
+
+model/geo_prior_ckp/
+model/model_efficientnet_b0/
+model/model_mobile_v3/
+model/model_mobile_v3_20250616/
+*.h5
+*.ckpt
+*.tflite
