@@ -128,13 +128,39 @@ def _select_output_details(interpreter):
         return outs[FLAGS.output_index]
     return outs[0]
 
+# ---------- 融合策略 ----------
+flags.DEFINE_enum(
+    'fusion_mode', 'bayes', ['bayes', 'log_alpha'],
+    "融合方式：'bayes' 使用论文的乘法融合 P(y|I,x) ∝ P(y|I)*P(y|x)；'log_alpha' 使用对数空间加权。"
+)
+flags.DEFINE_float('fusion_alpha', 0.5, 'Weight for CNN vs Geo prior fusion (0=all prior, 1=all CNN)')
+
 def _mix_predictions(cnn_probs: np.ndarray, prior_probs: np.ndarray, valid: np.ndarray) -> np.ndarray:
     """
-    论文原始融合：逐元素乘 + valid 门控
+    支持两种融合：
+      - bayes：论文原始融合，逐元素乘法
+      - log_alpha：对数空间加权（cnn^alpha * prior^(1-alpha)）
+    然后做 valid 门控：无效位置仅用 CNN
     """
     if valid.ndim == 1:
         valid = valid[:, None]
-    return cnn_probs * prior_probs * valid + (1.0 - valid) * cnn_probs
+
+    eps = 1e-8  # 数值稳定：避免 log(0)
+    if FLAGS.fusion_mode == 'bayes':
+        fused = cnn_probs * prior_probs
+    elif FLAGS.fusion_mode == 'log_alpha':
+        a = float(FLAGS.fusion_alpha)
+        fused = np.exp(
+            a * np.log(np.clip(cnn_probs, eps, 1.0)) +
+            (1.0 - a) * np.log(np.clip(prior_probs, eps, 1.0))
+        )
+    else:
+        raise ValueError(f"Unknown fusion_mode: {FLAGS.fusion_mode}")
+
+    # valid 门控：无效时仅用 CNN
+    return fused * valid + (1.0 - valid) * cnn_probs
+
+
 
 def _predict_batch_top_k(interpreter, out_details, images: np.ndarray, k: int):
     """
