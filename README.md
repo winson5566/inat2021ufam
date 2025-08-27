@@ -45,32 +45,6 @@ python dataset_tools/create_inat2021_tf_records_new.py \
 ### Training
 
 To train a classifier use the script `main.py`. As long as our final submission has two training stages, you can use the script `multi_stage_train.py`:
-```bash
-python multi_stage_train.py --training_files=PATH_TO_BE_CONFIGURED/inat_train.record-?????-of-00417 \
-    --num_training_instances=500000 \
-    --validation_files=PATH_TO_BE_CONFIGURED/inat_val.record-?????-of-00084 \
-    --num_validation_instances=100000 \
-    --num_classes=10000 \
-    --model_name=efficientnet-b3 \
-    --input_size=300 \
-    --input_size_stage3=432 \
-    --input_scale_mode=uint8 \
-    --batch_size=64 \
-    --lr_stage1=0.1 \
-    --lr_stage2=0.1 \
-    --lr_stage3=0.008 \
-    --momentum=0.9 \
-    --epochs_stage1=0 \
-    --epochs_stage2=20 \
-    --epochs_stage3=2 \
-    --unfreeze_layers=18 \
-    --label_smoothing=0.1 \
-    --randaug_num_layers=6 \
-    --randaug_magnitude=4 \
-    --model_dir=PATH_TO_BE_CONFIGURED \
-    --random_seed=42
-```
-
 The parameters can also be passed using a config file:
 efficientnet_b0
 ```bash
@@ -91,8 +65,7 @@ mobile_v3
 export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
 export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python multi_stage_train.py --flagfile=configs/moblie_v3_224x224_inatmini_full_mltstg.config \
---model_dir=model/model_mobile_v3
-
+--model_dir=model/model_mobile_v3_large \
 ```
 For more parameter information, please refer to `multi_stage_train.py` or `main.py`. See `configs` folder for some training configs examples.
 
@@ -102,7 +75,7 @@ To train geo prior model used on our final submission please see our [TF impleme
 ### tensorboard
 ```bash
 tensorboard --logdir=model/model_efficientnet_b0
-tensorboard --logdir=model/model_mobile_v3_20250616
+tensorboard --logdir=model/model_mobile_v3_large
 ```
 
 ## ckp.weights.h5
@@ -134,6 +107,15 @@ python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b
 ```
 ### Evaluate h5
 ```bash
+python eval_h5.py \
+  --model_path=model/model_efficientnet_b0 \
+  --model_builder_module=model_builder \
+  --model_name=efficientnet-b0 \
+  --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
+  --num_classes=10000 \
+  --input_size=300 \
+  --batch_size=64 \
+  --top_k=1
 python eval_h5.py \
   --model_path=model/model_efficientnet_b0 \
   --model_builder_module=model_builder \

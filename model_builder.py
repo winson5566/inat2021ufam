@@ -62,7 +62,7 @@ mobilenet_v2_spec: ModelSpecs = get_default_specs()._replace(
 )
 mobilenet_v3_spec: ModelSpecs = get_default_specs()._replace(
   name='mobilenet-v3',
-  func=tf.keras.applications.MobileNetV3Small,
+  func=tf.keras.applications.MobileNetV3Large,
   input_size=224
 )
 
