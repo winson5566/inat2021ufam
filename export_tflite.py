@@ -28,7 +28,11 @@ def build_model(model_name='efficientnet_b0', input_size=224, num_classes=10000)
     input_shape = (input_size, input_size, 3)
 
     if model_name == 'mobilenet_v3':
-        base_model = tf.keras.applications.MobileNetV3Small(
+        base_model = tf.keras.applications.MobileNetV3Large(
+            input_shape=input_shape, include_top=False, weights=None
+        )
+    elif model_name == 'mobilenet_v2':
+        base_model = tf.keras.applications.MobileNetV2(
             input_shape=input_shape, include_top=False, weights=None
         )
     elif model_name == 'efficientnet_b0':

@@ -58,7 +58,7 @@ mobile_v2
 export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
 export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python multi_stage_train.py --flagfile=configs/moblie_v2_224x224_inatmini_full_mltstg.config \
-    --model_dir=model/model_mobile_v2
+    --model_dir=model/model_mobile_v2 --load_checkpoint=model/model_mobile_v2
 ```
 mobile_v3
 ```bash
@@ -76,6 +76,7 @@ To train geo prior model used on our final submission please see our [TF impleme
 ```bash
 tensorboard --logdir=model/model_efficientnet_b0
 tensorboard --logdir=model/model_mobile_v3_large
+tensorboard --logdir=model/model_mobile_v2
 ```
 
 ## ckp.weights.h5
@@ -93,10 +94,20 @@ python eval_main.py \
   --top_k=1
 ``
 
-## tflite
+## tfliteinson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
+python multi_stage_train.py --flagfile=configs/moblie_v2_224x224_inatmini_full_mltstg.config \
+    --model_dir=model/model_mobile_v2
+```
+export_tflite
+```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 ### Export tflite Model
 ```bash
 python export_tflite.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_export.config
+python export_tflite.py --flagfile=configs/moblie_v3_224x224_inatmini_full_export.config
+python export_tflite.py --flagfile=configs/moblie_v2_224x224_inatmini_full_export.config
 ```
 
 ### Inspect tflite Model
@@ -104,18 +115,23 @@ python export_tflite.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full
 python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_drq.tflite
 python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp16.tflite
 python inspect_tflite.py model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp32.tflite
+python inspect_tflite.py model/model_mobile_v3_large/export/mobile_v3_large_inat2021_drq.tflite
+python inspect_tflite.py model/model_mobile_v3_large/export/mobile_v3_large_inat2021_fp16.tflite
+python inspect_tflite.py model/model_mobile_v3_large/export/mobile_v3_large_inat2021_fp32.tflite
+python inspect_tflite.py model/model_mobile_v2/export/mobile_v2_inat2021_drq.tflite
+python inspect_tflite.py model/model_mobile_v2/export/mobile_v2_inat2021_fp32.tflite
 ```
 ### Evaluate h5
 ```bash
 python eval_h5.py \
-  --model_path=model/model_efficientnet_b0 \
+  --model_path=model/model_mobile_v3_large \
   --model_builder_module=model_builder \
-  --model_name=efficientnet-b0 \
+  --model_name=mobilenet-v3 \
   --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
   --num_classes=10000 \
   --input_size=300 \
   --batch_size=64 \
-  --top_k=1
+  --top_k=5
 python eval_h5.py \
   --model_path=model/model_efficientnet_b0 \
   --model_builder_module=model_builder \
@@ -148,6 +164,16 @@ python eval_h5.py \
   --geo_prior_ckpt_dir=model/geo_prior_ckp  \
   --top_k=1  \
   --fusion_mode=log_alpha --fusion_alpha=0.2
+  
+  python eval_tflite.py \
+  --tflite_path=model/model_mobile_v2/export/mobile_v2_inat2021_drq.tflite \
+  --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
+  --num_classes=10000 \
+  --input_size=300 \
+  --batch_size=64  \
+  --geo_prior_ckpt_dir=model/geo_prior_ckp  \
+  --top_k=1  \
+  --fusion_mode=log_alpha --fusion_alpha=0.5
   
 ```
 ## Run test
