@@ -39,6 +39,14 @@ def build_model(model_name='efficientnet_b0', input_size=224, num_classes=10000)
         base_model = tf.keras.applications.EfficientNetB0(
             input_shape=input_shape, include_top=False, weights=None
         )
+    elif model_name == 'resnet_50':
+        base_model = tf.keras.applications.ResNet50(
+            input_shape=input_shape, include_top=False, weights=None
+    )
+    elif model_name == 'resnet_101':
+        base_model = tf.keras.applications.ResNet101(
+            input_shape=input_shape, include_top=False, weights=None
+    )
     else:
         raise ValueError(f"Unsupported model_name: {model_name}")
 

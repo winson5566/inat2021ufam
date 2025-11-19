@@ -65,7 +65,28 @@ mobile_v3
 export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
 export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python multi_stage_train.py --flagfile=configs/moblie_v3_224x224_inatmini_full_mltstg.config \
---model_dir=model/model_mobile_v3_large \
+--model_dir=model/model_mobile_v3_large
+```
+resnet_50
+```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
+python multi_stage_train.py --flagfile=configs/resnet_50_224x224_inatmini_full_mltstg.config \
+--model_dir=model/resnet_50
+```
+resnet_101
+```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
+python multi_stage_train.py --flagfile=configs/resnet_101_224x224_inatmini_full_mltstg.config \
+--model_dir=model/resnet_101
+```
+convnext_small
+```bash
+export LD_LIBRARY_PATH=/local/winson/cudnn-9.3.0/lib:$LD_LIBRARY_PATH
+export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
+python multi_stage_train.py --flagfile=configs/convnext_small_224x224_inatmini_full_mltstg.config \
+--model_dir=model/model_convnext_small
 ```
 For more parameter information, please refer to `multi_stage_train.py` or `main.py`. See `configs` folder for some training configs examples.
 
@@ -77,6 +98,7 @@ To train geo prior model used on our final submission please see our [TF impleme
 tensorboard --logdir=model/model_efficientnet_b0
 tensorboard --logdir=model/model_mobile_v3_large
 tensorboard --logdir=model/model_mobile_v2
+tensorboard --logdir=model/resnet_50
 ```
 
 ## ckp.weights.h5
@@ -91,6 +113,16 @@ python eval_main.py \
   --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
   --results_file=eval_results/result  \
   --geo_prior_ckpt_dir model/geo_prior_ckp  \
+  --top_k=1
+  
+  python eval_main.py \
+  --model_name=resnet-50 \
+  --input_size=300 \
+  --num_classes=10000 \
+  --batch_size=32 \
+  --ckpt_dir=model/resnet_50 \
+  --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
+  --results_file=eval_results/result  \
   --top_k=1
 ``
 
@@ -108,6 +140,8 @@ export CPATH=/local/winson/cudnn-9.3.0/include:$CPATH
 python export_tflite.py --flagfile=configs/efficientnet_b0_224x224_inatmini_full_export.config
 python export_tflite.py --flagfile=configs/moblie_v3_224x224_inatmini_full_export.config
 python export_tflite.py --flagfile=configs/moblie_v2_224x224_inatmini_full_export.config
+python export_tflite.py --flagfile=configs/resnet_50_224x224_inatmini_full_export.config
+python export_tflite.py --flagfile=configs/resnet_101_224x224_inatmini_full_export.config
 ```
 
 ### Inspect tflite Model
@@ -120,18 +154,24 @@ python inspect_tflite.py model/model_mobile_v3_large/export/mobile_v3_large_inat
 python inspect_tflite.py model/model_mobile_v3_large/export/mobile_v3_large_inat2021_fp32.tflite
 python inspect_tflite.py model/model_mobile_v2/export/mobile_v2_inat2021_drq.tflite
 python inspect_tflite.py model/model_mobile_v2/export/mobile_v2_inat2021_fp32.tflite
+python inspect_tflite.py model/model_resnet_50/export/model_resnet_50_inat2021_drq.tflite
+python inspect_tflite.py model/model_resnet_50/export/model_resnet_50_inat2021_fp32.tflite
+python inspect_tflite.py model/model_resnet_101/export/model_resnet_101_inat2021_drq.tflite
+python inspect_tflite.py model/model_resnet_101/export/model_resnet_101_inat2021_fp32.tflite
+python inspect_tflite.py model/model_resnet_101/export/model_resnet_101_inat2021_drq.tflite
 ```
 ### Evaluate h5
 ```bash
 python eval_h5.py \
-  --model_path=model/model_mobile_v3_large \
+  --model_path=model/resnet-50 \
   --model_builder_module=model_builder \
-  --model_name=mobilenet-v3 \
+  --model_name=resnet-50 \
   --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
   --num_classes=10000 \
   --input_size=300 \
   --batch_size=64 \
   --top_k=5
+  
 python eval_h5.py \
   --model_path=model/model_efficientnet_b0 \
   --model_builder_module=model_builder \
@@ -145,8 +185,17 @@ python eval_h5.py \
 ```
 ### Evaluate tflite Model
 ```bash
+
   python eval_tflite.py \
-  --tflite_path=model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp32.tflite \
+  --tflite_path=model/model_resnet_101/export/model_resnet_101_inat2021_drq.tflite  \
+  --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
+  --num_classes=10000 \
+  --input_size=300 \
+  --batch_size=64  \
+  --top_k=5  
+  
+  python eval_tflite.py \
+  --tflite_path=model/model_resnet_101/export/model_resnet_101_inat2021_fp32.tflite \
   --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
   --num_classes=10000 \
   --input_size=300 \
@@ -156,14 +205,14 @@ python eval_h5.py \
   --fusion_mode=bayes
   
   python eval_tflite.py \
-  --tflite_path=model/model_efficientnet_b0/export/model_efficientnet_b0_inat2021_fp32.tflite \
+  --tflite_path=model/model_resnet_101/export/model_resnet_101_inat2021_fp32.tflite \
   --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
   --num_classes=10000 \
   --input_size=300 \
   --batch_size=64  \
   --geo_prior_ckpt_dir=model/geo_prior_ckp  \
   --top_k=1  \
-  --fusion_mode=log_alpha --fusion_alpha=0.2
+  --fusion_mode=log_alpha --fusion_alpha=0.4
   
   python eval_tflite.py \
   --tflite_path=model/model_mobile_v2/export/mobile_v2_inat2021_drq.tflite \

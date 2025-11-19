@@ -66,6 +66,25 @@ mobilenet_v3_spec: ModelSpecs = get_default_specs()._replace(
   input_size=224
 )
 
+resnet_50_spec: ModelSpecs = get_default_specs()._replace(
+  name='resnet-50',
+  func=tf.keras.applications.ResNet50,
+  input_size=224
+)
+
+resnet_101_spec: ModelSpecs = get_default_specs()._replace(
+  name='resnet-101',
+  func=tf.keras.applications.ResNet101,
+  input_size=224
+)
+
+convnext_small_spec: ModelSpecs = get_default_specs()._replace(
+  name='convnext-small',
+  func=tf.keras.applications.ConvNeXtSmall,
+  input_size=224
+)
+
+
 MODELS_SPECS = {
   'efficientnet-b0': efficientnet_b0_spec,
   'efficientnet-b2': efficientnet_b2_spec,
@@ -73,6 +92,9 @@ MODELS_SPECS = {
   'efficientnet-b4': efficientnet_b4_spec,
   'mobilenet-v2': mobilenet_v2_spec,
   'mobilenet-v3': mobilenet_v3_spec,
+  'resnet-50': resnet_50_spec,
+  'resnet-101': resnet_101_spec,
+  'convnext-small': convnext_small_spec
 }
 
 def _get_mobilenet_params(model_name):
@@ -88,7 +110,6 @@ def _get_mobilenet_params(model_name):
 
 def _get_keras_base_model(specs, model_name, weights='imagenet'):
   base_model = None
-
   if  specs.name.startswith('mobilenet'):
     alpha = _get_mobilenet_params(model_name)
     base_model = specs.func(
@@ -98,6 +119,18 @@ def _get_keras_base_model(specs, model_name, weights='imagenet'):
       weights=weights
     )
   elif specs.name.startswith('efficientnet'):
+    base_model = specs.func(
+      input_shape=(specs.input_size, specs.input_size, 3),
+      include_top=False,
+      weights=weights
+    )
+  elif specs.name.startswith('resnet'):
+    base_model = specs.func(
+      input_shape=(specs.input_size, specs.input_size, 3),
+      include_top=False,
+      weights=weights
+    )
+  elif specs.name.startswith('convnext'):
     base_model = specs.func(
       input_shape=(specs.input_size, specs.input_size, 3),
       include_top=False,
