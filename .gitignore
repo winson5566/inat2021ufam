@@ -148,3 +148,4 @@ model/model_mobile_v3_20250616/
 inat2021/train.json
 inat2021/train_mini.json
 inat2021/val.json.DS_Store
+model/
