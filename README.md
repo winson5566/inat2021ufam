@@ -99,6 +99,7 @@ tensorboard --logdir=model/model_efficientnet_b0
 tensorboard --logdir=model/model_mobile_v3_large
 tensorboard --logdir=model/model_mobile_v2
 tensorboard --logdir=model/resnet_50
+tensorboard --logdir=model/model_convnext_small
 ```
 
 ## ckp.weights.h5
@@ -142,6 +143,7 @@ python export_tflite.py --flagfile=configs/moblie_v3_224x224_inatmini_full_expor
 python export_tflite.py --flagfile=configs/moblie_v2_224x224_inatmini_full_export.config
 python export_tflite.py --flagfile=configs/resnet_50_224x224_inatmini_full_export.config
 python export_tflite.py --flagfile=configs/resnet_101_224x224_inatmini_full_export.config
+python export_tflite.py --flagfile=configs/convnext_small_224x224_inatmini_full_export.config
 ```
 
 ### Inspect tflite Model
@@ -159,6 +161,9 @@ python inspect_tflite.py model/model_resnet_50/export/model_resnet_50_inat2021_f
 python inspect_tflite.py model/model_resnet_101/export/model_resnet_101_inat2021_drq.tflite
 python inspect_tflite.py model/model_resnet_101/export/model_resnet_101_inat2021_fp32.tflite
 python inspect_tflite.py model/model_resnet_101/export/model_resnet_101_inat2021_drq.tflite
+
+python inspect_tflite.py model/model_convnext_small/export/model_convnext_small_inat2021_fp32.tflite
+python inspect_tflite.py model/model_convnext_small/export/model_convnext_small_inat2021_drq.tflite
 ```
 ### Evaluate h5
 ```bash
@@ -187,7 +192,7 @@ python eval_h5.py \
 ```bash
 
   python eval_tflite.py \
-  --tflite_path=model/model_resnet_101/export/model_resnet_101_inat2021_drq.tflite  \
+  --tflite_path=model/model_convnext_small/export/model_convnext_small_inat2021_fp32.tflite  \
   --test_files="inat2021/tfrecords/test/inat_val.record-?????-of-00084" \
   --num_classes=10000 \
   --input_size=300 \

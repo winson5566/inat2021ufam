@@ -47,6 +47,10 @@ def build_model(model_name='efficientnet_b0', input_size=224, num_classes=10000)
         base_model = tf.keras.applications.ResNet101(
             input_shape=input_shape, include_top=False, weights=None
     )
+    elif model_name == 'convnext_small':
+        base_model = tf.keras.applications.ConvNeXtSmall(
+            input_shape=input_shape, include_top=False, weights=None
+    )
     else:
         raise ValueError(f"Unsupported model_name: {model_name}")
 
@@ -111,7 +115,14 @@ def main(_):
     )
 
     print(f"🔄 Loading weights from: {FLAGS.weights_path}")
-    model.load_weights(FLAGS.weights_path)
+    model.load_weights(
+        FLAGS.weights_path
+    )
+    # model.load_weights(
+    #     FLAGS.weights_path,
+    #     by_name=True,
+    #     skip_mismatch=True
+    # )
     print("✅ Weights loaded successfully.")
 
     export_saved_model(model, FLAGS.saved_model_dir)
